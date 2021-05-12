@@ -17,7 +17,7 @@ services:
     command: /bin/bash
   mongo:
     image: mongo
-    restart: always
+    restart: on-failure
     container_name: mongo
     ports:
       - 27017:27017
@@ -25,7 +25,7 @@ services:
       - ./docker/mongo/mongo.env
   mongo-express:
     image: mongo-express
-    restart: always
+    restart: on-failure
     container_name: mongo-express
     ports:
       - 8081:8081
