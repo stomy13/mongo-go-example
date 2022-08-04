@@ -36,9 +36,20 @@ func InsertManySurveys(ctx context.Context, collection *mongo.Collection) {
 	for surveyId := 1; surveyId < 11; surveyId++ {
 		for i := 0; i < 10000; i++ {
 			if i%2 == 0 {
-				surveys = append(surveys, bson.D{{"survey_id", surveyId}, {"user_id", i}, {"1", 1}})
+				surveys = append(surveys, bson.D{
+					{Key: "survey_id", Value: surveyId},
+					{Key: "user_id", Value: i},
+					{Key: "1", Value: 1},
+				})
 			} else {
-				surveys = append(surveys, bson.D{{"survey_id", surveyId}, {"user_id", i}, {"1", 1}, {"3", 1}, {"4", 1}, {"5", 1}})
+				surveys = append(surveys, bson.D{
+					{Key: "survey_id", Value: surveyId},
+					{Key: "user_id", Value: i},
+					{Key: "1", Value: 1},
+					{Key: "3", Value: 1},
+					{Key: "4", Value: 1},
+					{Key: "5", Value: 1},
+				})
 			}
 		}
 	}
@@ -58,7 +69,7 @@ func FindSurveys(ctx context.Context, collection *mongo.Collection) []bson.D {
 	results := make([]bson.D, 0)
 
 	execTime := exectime.Measure(func() {
-		cur, err := collection.Find(ctx, bson.D{{"survey_id", 5}})
+		cur, err := collection.Find(ctx, bson.D{{Key: "survey_id", Value: 5}})
 		if err != nil {
 			log.Fatalln(err)
 		}
