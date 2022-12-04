@@ -93,3 +93,68 @@ func FindSurveys(ctx context.Context, collection *mongo.Collection) []bson.D {
 
 	return results
 }
+
+func AggregateSurveys(ctx context.Context, collection *mongo.Collection) []bson.M {
+
+	var results []bson.M
+
+	execTime := exectime.Measure(func() {
+		matchStage := bson.D{
+			{Key: "$match", Value: bson.D{
+				{Key: "$or", Value: bson.A{
+					bson.D{
+						{"survey_id", 5},
+					},
+					bson.D{
+						{"survey_id", 7},
+					},
+					bson.D{
+						{"survey_id", 3},
+					},
+					bson.D{
+						{"survey_id", 1},
+					},
+				}},
+			}}}
+		groupStage := bson.D{
+			{"$group", bson.D{
+				{"_id", "$survey_id"},
+				{"1_count", bson.D{
+					{"$sum", "$1"},
+				}},
+				{"2_count", bson.D{
+					{"$sum", "$2"},
+				}},
+				{"3_count", bson.D{
+					{"$sum", "$3"},
+				}},
+				{"4_count", bson.D{
+					{"$sum", "$4"},
+				}},
+				// {"5_count", bson.D{
+				// 	{"$sum", "$5"},
+				// }},
+			}}}
+		_ = matchStage
+		cur, err := collection.Aggregate(ctx, mongo.Pipeline{
+			matchStage,
+			groupStage,
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+		defer cur.Close(ctx)
+
+		if err = cur.All(ctx, &results); err != nil {
+			panic(err)
+		}
+		fmt.Println("aggregate objects =", len(results))
+
+		if err := cur.Err(); err != nil {
+			log.Fatal(err)
+		}
+	})
+	fmt.Println("aggregate took", execTime.Seconds())
+
+	return results
+}

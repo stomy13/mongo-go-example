@@ -10,6 +10,7 @@ import (
 	"github.com/MasatoTokuse/exectime"
 	"github.com/MasatoTokuse/mongo-go-example/mymongo"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
@@ -33,9 +34,11 @@ func main() {
 	}
 
 	collection := client.Database("test").Collection("surveys")
-	mymongo.InsertManySurveys(ctx, collection)
-	results := mymongo.FindSurveys(ctx, collection)
-	totalSurveys(results)
+	results := mymongo.AggregateSurveys(ctx, collection)
+	printAggregate(results)
+	// mymongo.InsertManySurveys(ctx, collection)
+	// results := mymongo.FindSurveys(ctx, collection)
+	// totalSurveys(results)
 }
 
 func totalSurveys(results []bson.D) {
@@ -56,4 +59,12 @@ func totalSurveys(results []bson.D) {
 		}
 	})
 	fmt.Println("total took", execTime.Seconds())
+}
+
+func printAggregate(results []primitive.M) {
+	for i := range results {
+		for k, v := range results[i] {
+			fmt.Println(i, k, v)
+		}
+	}
 }
